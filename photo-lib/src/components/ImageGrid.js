@@ -38,6 +38,7 @@ const ImageGrid = () => {
       border: 'none',
       borderRadius: '5px',
       cursor: 'pointer',
+      transition: 'background-color 0.3s ease',
     },
     imageGrid: {
       display: 'grid',
