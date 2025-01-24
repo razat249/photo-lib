@@ -68,8 +68,12 @@ const UploadForm = ({ onUpload }) => {
       setPreviews([]);
     } catch (error) {
       console.error('Error uploading files:', error);
+      setFiles([]);
+      setPreviews([]);
     } finally {
       setLoading(false);
+      setFiles([]);
+      setPreviews([]);
     }
   };
 
