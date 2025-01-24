@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const ImageGrid = () => {
   const [images, setImages] = useState([]);
-  const [timer, setTimer] = useState(10);
+  const [timer, setTimer] = useState(30);
   const [loading, setLoading] = useState(false);
 
   const fetchImages = async () => {
@@ -30,7 +30,7 @@ const ImageGrid = () => {
     fetchImages();
     const interval = setInterval(() => {
       fetchImages();
-      setTimer(10);
+      setTimer(30);
     }, 10000);
 
     const countdown = setInterval(() => {

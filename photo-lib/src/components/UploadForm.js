@@ -47,8 +47,11 @@ const UploadForm = ({ onUpload }) => {
         setPreview(null);
       } catch (error) {
         console.error('Error uploading file:', error);
+        setFile(null);
+        setPreview(null);
       } finally {
         setLoading(false);
+        setPreview(null);
       }
     };
   };
