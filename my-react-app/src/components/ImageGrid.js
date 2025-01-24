@@ -1,12 +1,19 @@
+// filepath: /workspaces/photo-lib/my-react-app/src/components/ImageGrid.js
 import React from 'react';
 import './ImageGrid.css'; // Assuming you have a CSS file for styling
 
-const ImageGrid = ({ imageUrls }) => {
+const importAll = (r) => {
+  return r.keys().map(r);
+};
+
+const images = importAll(require.context('../../public/images', false, /\.(png|jpe?g|svg)$/));
+
+const ImageGrid = () => {
   return (
     <div className="image-grid">
-      {imageUrls.map((url, index) => (
+      {images.map((image, index) => (
         <div key={index} className="image-grid-item">
-          <img src={url} alt={`Uploaded ${index}`} />
+          <img src={image} alt={`Uploaded ${index}`} />
         </div>
       ))}
     </div>
