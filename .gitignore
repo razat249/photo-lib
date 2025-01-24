@@ -4,6 +4,7 @@
 # Build directories
 build/
 dist/
+/photo-lib/public/images
 
 # Logs
 logs/
