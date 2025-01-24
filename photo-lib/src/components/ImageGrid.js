@@ -3,9 +3,11 @@ import axios from 'axios';
 
 const ImageGrid = () => {
   const [images, setImages] = useState([]);
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(10);
+  const [loading, setLoading] = useState(false);
 
   const fetchImages = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         'https://api.github.com/repos/razat249/photo-lib/contents/photo-lib/public/images',
@@ -19,6 +21,8 @@ const ImageGrid = () => {
       setImages(imageUrls);
     } catch (error) {
       console.error('Error fetching images:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -41,6 +45,7 @@ const ImageGrid = () => {
 
   const styles = {
     container: {
+      width: '100%',
       padding: '20px',
       backgroundColor: '#f8f9fa',
     },
@@ -70,12 +75,21 @@ const ImageGrid = () => {
       borderRadius: '10px',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
       transition: 'transform 0.3s ease, box-shadow 0.3s ease',
+      paddingBottom: '100%', // This ensures the item is square
     },
     imageGridItemImg: {
+      position: 'absolute',
+      top: '0',
+      left: '0',
       width: '100%',
       height: '100%',
       objectFit: 'cover',
       transition: 'transform 0.3s ease',
+    },
+    loader: {
+      margin: '10px 0',
+      fontSize: '1.2rem',
+      color: '#007bff',
     },
   };
 
@@ -88,20 +102,24 @@ const ImageGrid = () => {
         Refresh
       </button>
       <div style={styles.timer}>Auto-refresh in: {timer}s</div>
-      <div style={styles.imageGrid}>
-        {images.map((url, index) => (
-          <div
-            key={index}
-            style={styles.imageGridItem}
-          >
-            <img
-              src={url}
-              alt={`Uploaded ${index}`}
-              style={styles.imageGridItemImg}
-            />
-          </div>
-        ))}
-      </div>
+      {loading ? (
+        <div style={styles.loader}>Loading...</div>
+      ) : (
+        <div style={styles.imageGrid}>
+          {images.map((url, index) => (
+            <div
+              key={index}
+              style={styles.imageGridItem}
+            >
+              <img
+                src={url}
+                alt={`Uploaded ${index}`}
+                style={styles.imageGridItemImg}
+              />
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 };

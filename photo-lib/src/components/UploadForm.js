@@ -4,6 +4,7 @@ import axios from 'axios';
 const UploadForm = ({ onUpload }) => {
   const [file, setFile] = useState(null);
   const [preview, setPreview] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const handleFileChange = (event) => {
     const selectedFile = event.target.files[0];
@@ -19,6 +20,8 @@ const UploadForm = ({ onUpload }) => {
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!file) return;
+
+    setLoading(true);
 
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -44,6 +47,8 @@ const UploadForm = ({ onUpload }) => {
         setPreview(null);
       } catch (error) {
         console.error('Error uploading file:', error);
+      } finally {
+        setLoading(false);
       }
     };
   };
@@ -86,20 +91,29 @@ const UploadForm = ({ onUpload }) => {
       borderRadius: '10px',
       boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
     },
+    loader: {
+      margin: '10px 0',
+      fontSize: '1.2rem',
+      color: '#007bff',
+    },
   };
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
       <input type="file" onChange={handleFileChange} style={styles.input} />
       {preview && <img src={preview} alt="Preview" style={styles.preview} />}
-      <button
-        type="submit"
-        style={styles.button}
-        onMouseOver={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
-        onMouseOut={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
-      >
-        Upload
-      </button>
+      {loading ? (
+        <div style={styles.loader}>Uploading...</div>
+      ) : (
+        <button
+          type="submit"
+          style={styles.button}
+          onMouseOver={(e) => (e.target.style.backgroundColor = styles.buttonHover.backgroundColor)}
+          onMouseOut={(e) => (e.target.style.backgroundColor = styles.button.backgroundColor)}
+        >
+          Upload
+        </button>
+      )}
     </form>
   );
 };
