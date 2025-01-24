@@ -50,7 +50,7 @@ function App() {
 
   return (
     <div style={styles.app}>
-        <h1 style={styles.title}>Image Upload and Display</h1>
+      <h1 style={styles.title}>Image Upload and Display</h1>
       <div style={styles.content}>
         <UploadForm addImage={addImage} />
         <ImageGrid images={images} />

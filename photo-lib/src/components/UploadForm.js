@@ -2,58 +2,75 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const UploadForm = ({ onUpload }) => {
-  const [file, setFile] = useState(null);
-  const [preview, setPreview] = useState(null);
+  const [files, setFiles] = useState([]);
+  const [previews, setPreviews] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0];
-    setFile(selectedFile);
+    const selectedFiles = Array.from(event.target.files);
+    setFiles(selectedFiles);
 
-    const reader = new FileReader();
-    reader.readAsDataURL(selectedFile);
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
+    const filePreviews = selectedFiles.map((file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      return new Promise((resolve) => {
+        reader.onloadend = () => {
+          resolve(reader.result);
+        };
+      });
+    });
+
+    Promise.all(filePreviews).then((previews) => {
+      setPreviews(previews);
+    });
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!file) return;
+    if (files.length === 0) return;
 
     setLoading(true);
 
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onloadend = async () => {
-      const base64File = reader.result.split(',')[1];
+    const uploadPromises = files.map((file) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      return new Promise((resolve, reject) => {
+        reader.onloadend = async () => {
+          const base64File = reader.result.split(',')[1];
 
-      try {
-        const response = await axios.put(
-          `https://api.github.com/repos/razat249/photo-lib/contents/photo-lib/public/images/${file.name}`,
-          {
-            message: `Upload ${file.name}`,
-            content: base64File,
-          },
-          {
-            headers: {
-              Authorization: `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
-              'Content-Type': 'application/json',
-            },
+          try {
+            const response = await axios.put(
+              `https://api.github.com/repos/razat249/photo-lib/contents/photo-lib/public/images/${file.name}`,
+              {
+                message: `Upload ${file.name}`,
+                content: base64File,
+              },
+              {
+                headers: {
+                  Authorization: `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
+                  'Content-Type': 'application/json',
+                },
+              }
+            );
+            resolve(response.data.content.download_url);
+          } catch (error) {
+            console.error('Error uploading file:', error);
+            reject(error);
           }
-        );
-        onUpload(response.data.content.download_url);
-        setFile(null);
-        setPreview(null);
-      } catch (error) {
-        console.error('Error uploading file:', error);
-        setFile(null);
-        setPreview(null);
-      } finally {
-        setLoading(false);
-        setPreview(null);
-      }
-    };
+        };
+      });
+    });
+
+    try {
+      const uploadedUrls = await Promise.all(uploadPromises);
+      uploadedUrls.forEach((url) => onUpload(url));
+      setFiles([]);
+      setPreviews([]);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const styles = {
@@ -103,8 +120,10 @@ const UploadForm = ({ onUpload }) => {
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
-      <input type="file" onChange={handleFileChange} style={styles.input} />
-      {preview && <img src={preview} alt="Preview" style={styles.preview} />}
+      <input type="file" multiple onChange={handleFileChange} style={styles.input} />
+      {previews.map((preview, index) => (
+        <img key={index} src={preview} alt={`Preview ${index}`} style={styles.preview} />
+      ))}
       {loading ? (
         <div style={styles.loader}>Uploading...</div>
       ) : (
