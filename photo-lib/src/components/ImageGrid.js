@@ -6,6 +6,7 @@ const ImageGrid = () => {
   const [timer, setTimer] = useState(30);
   const [loading, setLoading] = useState(false);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
+  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
 
   const fetchImages = async () => {
     setLoading(true);
@@ -92,9 +93,24 @@ const ImageGrid = () => {
       fontSize: '1.2rem',
       color: '#333',
     },
+    viewToggleButton: {
+      margin: '10px 0',
+      padding: '10px 20px',
+      backgroundColor: '#28a745',
+      color: 'white',
+      border: 'none',
+      borderRadius: '5px',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s ease',
+    },
     imageGrid: {
       display: 'grid',
       gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
+      gap: '15px',
+    },
+    imageList: {
+      display: 'flex',
+      flexDirection: 'column',
       gap: '15px',
     },
     imageGridItem: {
@@ -106,6 +122,14 @@ const ImageGrid = () => {
       paddingBottom: '100%', // This ensures the item is square
       cursor: 'pointer',
     },
+    imageListItem: {
+      display: 'flex',
+      alignItems: 'center',
+      padding: '10px',
+      borderRadius: '10px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+      cursor: 'pointer',
+    },
     imageGridItemImg: {
       position: 'absolute',
       top: '0',
@@ -114,6 +138,13 @@ const ImageGrid = () => {
       height: '100%',
       objectFit: 'cover',
       transition: 'transform 0.3s ease',
+    },
+    imageListItemImg: {
+      width: '100px',
+      height: '100px',
+      objectFit: 'cover',
+      borderRadius: '10px',
+      marginRight: '10px',
     },
     loader: {
       margin: '10px 0',
@@ -180,10 +211,16 @@ const ImageGrid = () => {
       >
         Refresh
       </button>
+      <button
+        onClick={() => setViewMode(viewMode === 'grid' ? 'list' : 'grid')}
+        style={styles.viewToggleButton}
+      >
+        Toggle to {viewMode === 'grid' ? 'List' : 'Grid'} View
+      </button>
       <div style={styles.timer}>Auto-refresh in: {timer}s</div>
       {loading ? (
         <div style={styles.loader}>Loading...</div>
-      ) : (
+      ) : viewMode === 'grid' ? (
         <div style={styles.imageGrid}>
           {images.map((url, index) => (
             <div
@@ -196,6 +233,23 @@ const ImageGrid = () => {
                 alt={`Uploaded ${index}`}
                 style={styles.imageGridItemImg}
               />
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={styles.imageList}>
+          {images.map((url, index) => (
+            <div
+              key={index}
+              style={styles.imageListItem}
+              onClick={() => setSelectedImageIndex(index)}
+            >
+              <img
+                src={url}
+                alt={`Uploaded ${index}`}
+                style={styles.imageListItemImg}
+              />
+              <span>{`Image ${index + 1}`}</span>
             </div>
           ))}
         </div>
