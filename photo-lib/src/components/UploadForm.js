@@ -1,3 +1,4 @@
+// filepath: /workspaces/photo-lib/photo-lib/src/components/UploadForm.js
 import React, { useState } from 'react';
 import axios from 'axios';
 
@@ -14,11 +15,12 @@ const UploadForm = ({ onUpload }) => {
 
     const formData = new FormData();
     formData.append('file', file);
+    console.log('formData:', process.env.REACT_APP_GITHUB_TOKEN);
 
     try {
       const response = await axios.post('https://api.github.com/repos/rpatwa/photo-lib/images', formData, {
         headers: {
-          'Authorization': `token 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`,
+          'Authorization': `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
           'Content-Type': 'application/json',
         },
       });
