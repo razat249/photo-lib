@@ -17,7 +17,7 @@ const UploadForm = ({ onUpload }) => {
     formData.append('file', file);
 
     try {
-      const response = await axios.post('https://api.github.com/repos/rpatwa/photo-lib/images', formData, {
+      const response = await axios.post('https://api.github.com/repos/rpatwa/photo-lib/photo-lib/images', formData, {
         headers: {
           'Authorization': `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
           'Content-Type': 'application/json',
