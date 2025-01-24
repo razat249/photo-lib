@@ -3,9 +3,17 @@ import axios from 'axios';
 
 const UploadForm = ({ onUpload }) => {
   const [file, setFile] = useState(null);
+  const [preview, setPreview] = useState(null);
 
   const handleFileChange = (event) => {
-    setFile(event.target.files[0]);
+    const selectedFile = event.target.files[0];
+    setFile(selectedFile);
+
+    const reader = new FileReader();
+    reader.readAsDataURL(selectedFile);
+    reader.onloadend = () => {
+      setPreview(reader.result);
+    };
   };
 
   const handleSubmit = async (event) => {
@@ -33,6 +41,7 @@ const UploadForm = ({ onUpload }) => {
         );
         onUpload(response.data.content.download_url);
         setFile(null);
+        setPreview(null);
       } catch (error) {
         console.error('Error uploading file:', error);
       }
@@ -70,11 +79,19 @@ const UploadForm = ({ onUpload }) => {
     buttonHover: {
       backgroundColor: '#0056b3',
     },
+    preview: {
+      margin: '10px 0',
+      width: '100%',
+      maxWidth: '400px',
+      borderRadius: '10px',
+      boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
+    },
   };
 
   return (
     <form onSubmit={handleSubmit} style={styles.form}>
       <input type="file" onChange={handleFileChange} style={styles.input} />
+      {preview && <img src={preview} alt="Preview" style={styles.preview} />}
       <button
         type="submit"
         style={styles.button}

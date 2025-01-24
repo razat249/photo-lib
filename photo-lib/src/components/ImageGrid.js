@@ -3,6 +3,7 @@ import axios from 'axios';
 
 const ImageGrid = () => {
   const [images, setImages] = useState([]);
+  const [timer, setTimer] = useState(30);
 
   const fetchImages = async () => {
     try {
@@ -23,6 +24,19 @@ const ImageGrid = () => {
 
   useEffect(() => {
     fetchImages();
+    const interval = setInterval(() => {
+      fetchImages();
+      setTimer(10);
+    }, 10000);
+
+    const countdown = setInterval(() => {
+      setTimer((prevTimer) => (prevTimer > 0 ? prevTimer - 1 : 10));
+    }, 1000);
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(countdown);
+    };
   }, []);
 
   const styles = {
@@ -39,6 +53,11 @@ const ImageGrid = () => {
       borderRadius: '5px',
       cursor: 'pointer',
       transition: 'background-color 0.3s ease',
+    },
+    timer: {
+      margin: '10px 0',
+      fontSize: '1.2rem',
+      color: '#333',
     },
     imageGrid: {
       display: 'grid',
@@ -68,6 +87,7 @@ const ImageGrid = () => {
       >
         Refresh
       </button>
+      <div style={styles.timer}>Auto-refresh in: {timer}s</div>
       <div style={styles.imageGrid}>
         {images.map((url, index) => (
           <div
