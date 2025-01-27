@@ -31,39 +31,36 @@ const UploadForm = ({ onUpload }) => {
 
     setLoading(true);
 
-    const uploadPromises = files.map((file) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      return new Promise((resolve, reject) => {
-        reader.onloadend = async () => {
-          const base64File = reader.result.split(',')[1];
-
-          try {
-            const response = await axios.put(
-              `https://api.github.com/repos/razat249/photo-lib/contents/photo-lib/public/images/${file.name}`,
-              {
-                message: `Upload ${file.name}`,
-                content: base64File,
-              },
-              {
-                headers: {
-                  Authorization: `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
-                  'Content-Type': 'application/json',
-                },
-              }
-            );
-            resolve(response.data.content.download_url);
-          } catch (error) {
-            console.error('Error uploading file:', error);
-            reject(error);
-          }
-        };
-      });
-    });
-
     try {
-      const uploadedUrls = await Promise.all(uploadPromises);
-      uploadedUrls.forEach((url) => onUpload(url));
+      for (const file of files) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        const base64File = await new Promise((resolve, reject) => {
+          reader.onloadend = () => {
+            resolve(reader.result.split(',')[1]);
+          };
+          reader.onerror = reject;
+        });
+
+        try {
+          const response = await axios.put(
+            `https://api.github.com/repos/razat249/photo-lib/contents/photo-lib/public/images/${file.name}`,
+            {
+              message: `Upload ${file.name}`,
+              content: base64File,
+            },
+            {
+              headers: {
+                Authorization: `token ${process.env.REACT_APP_GITHUB_TOKEN}`,
+                'Content-Type': 'application/json',
+              },
+            }
+          );
+          onUpload(response.data.content.download_url);
+        } catch (error) {
+          console.error('Error uploading file:', error);
+        }
+      }
       setFiles([]);
       setPreviews([]);
     } catch (error) {
@@ -72,8 +69,6 @@ const UploadForm = ({ onUpload }) => {
       setPreviews([]);
     } finally {
       setLoading(false);
-      setFiles([]);
-      setPreviews([]);
     }
   };
 
